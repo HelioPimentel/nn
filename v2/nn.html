@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>NN</title>
+    <link rel="icon" href="../nn.ico" />
+    <link rel="stylesheet" href="../bootstrap.min.css" />
+    <link rel="stylesheet" href="../nn.css?v=2026-08-16" />
+</head>
+<body class="bg-light p-5">
+    <div class="nn"><img src="../nn.png" /></div>
+    <big><b>Notícias Negativas ESG</b></big><br />
+    <big><b><a href="..">nn.ia.br</a></b></big><br /><br />
+    <div id="d1">Aguarde.</div><br />
+    <a class="text-danger" href="..">&#8606; Voltar</a><br /><br />
+    <div id="d2"></div>
+</body>
+</html>
+
+<script>
+
+    const d1 = document.getElementById("d1");
+    const d2 = document.getElementById("d2");
+    let max = 100;
+    let i1 = []; let i2 = []; let n1 = []; let n2 = [];
+    window.addEventListener("load", Proc);
+
+    async function Proc() {
+
+        const par = new URLSearchParams(window.location.search);
+        const nome = par.get("nome")?.replace(/\s+/g, " ").trim().toLowerCase().normalize("NFD").replace(/\p{Mn}/gu, "").normalize("NFC") ?? "";
+        if (nome === "") {
+            d1.innerHTML = "Volte à tela anterior e digite o nome de uma empresa.";
+            return;
+        }
+
+        let response = await fetch("i1a.txt"); let text = await response.text();
+        response = await fetch("i1b.txt"); text += await response.text();
+        response = await fetch("i1c.txt"); text += await response.text();
+        i1 = text.split("\r\n");
+        response = await fetch("i2a.txt"); text = await response.text();
+        response = await fetch("i2b.txt"); text += await response.text();
+        response = await fetch("i2c.txt"); text += await response.text();
+        i2 = text.split("\r\n");
+        response = await fetch("n1a.txt"); text = await response.text();
+        n1 = text.split("\r\n");
+        response = await fetch("n2a.txt"); text = await response.text();
+        response = await fetch("n2b.txt"); text += await response.text();
+        response = await fetch("n2c.txt"); text += await response.text();
+        n2 = text.split("\r\n");
+        response = null; text = null;
+
+        let indice = [];
+        for (let i = 0; i < i1.length; i++)
+            if (i1[i].includes(nome))
+                indice.push(i2[i]);
+        indice = [...new Set(indice)];
+        indice.sort();
+        if (indice.length === 0) {
+            d1.innerHTML = "Nenhuma notícia encontrada.";
+            return;
+        }
+        d1.innerHTML = "Notícias encontradas para <b>" + nome + "</b>: " + indice.length.toLocaleString("pt-BR") + (indice.length > max ? " (mostrando " + max + ")" : "");
+
+        let step = 1;
+        let first = 0;
+        if (indice.length > max) {
+            step = Math.trunc((indice.length - 1) / (max - 1));
+            first = indice.length - 1 - step * (max - 1);
+        }
+
+        let ret = "";
+        let br = 0;
+        for (let i = first; i < indice.length; i += step) {
+            let data = indice[i].substr(4, 2) + "/" + indice[i].substr(0, 4);
+            let url = PesqNoticia(indice[i]);
+            ret += data + " &nbsp; <a href=\"https://" + url + "\" target=\"_blank\">" + url + "</a><br />";
+            if (++br === 5) { ret += "<br />"; br = 0; }
+        }
+        d2.innerHTML = ret;
+
+    }
+
+    function PesqNoticia(indice) {
+        for (let i = 0; i < n1.length; i++)
+            if (n1[i] === indice)
+                return n2[i];
+        return "*ERRO*";
+    }
+
+</script>
