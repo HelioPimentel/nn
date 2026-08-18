@@ -61,7 +61,10 @@
             d1.innerHTML = "Nenhuma notícia encontrada.";
             return;
         }
-        d1.innerHTML = "Notícias encontradas para <b>" + nome + "</b>: " + indice.length.toLocaleString("pt-BR") + (indice.length > max ? " (mostrando " + max + ")" : "");
+
+        d1.innerHTML =
+            "Notícias encontradas para <b>" + nome + "</b>: " + indice.length.toLocaleString("pt-BR") + (indice.length > max ? " (mostrando " + max + ")" : "") +
+            "<br />Neste site, as notícias não passam pela IA.<br />Falsos positivos, portanto, são comuns.";
 
         let step = 1;
         let first = 0;
